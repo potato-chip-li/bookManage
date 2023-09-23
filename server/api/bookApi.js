@@ -1,5 +1,3 @@
-//api路由
-//userApi.js —— 测试用 API 示例
 import models from '../db.js';
 import express from 'express';
 import mysql from 'mysql';
@@ -18,35 +16,57 @@ var jsonWrite = function (res, ret) {
    else {
        res.json(
            ret
-       );
+       )
    }
-};
+}
 // 增加用户接口
 router.post('/addBook', (req, res) => {
-   var sql = $sql.book.add;
-   var params = req.body;
-   console.log(params);
-   conn.query(sql, [params.bookname,params.author,params.typename,params.remarks,params.isborrow], function (err, result) {
-       if (err) {
-           console.log(err);
-       }
-       if (result) {
-           jsonWrite(res, result);
-       }
-   })
-});
+   var sql_add = $sql.book.add
+   var params = req.body
+   console.log(params)
+    conn.query(sql_add, [params.bookname,params.author,params.typename,params.remarks,params.isborrow], function (err, result) {
+        if (err) {
+            console.log(err)
+        }
+        if (result) {
+            jsonWrite(res, result)
+        }})})
 
+router.post('/delBook',(req, res)=>{
+    var sql_del = $sql.book.del
+    var params = req.body
+    console.log(params)
+    conn.query(sql_del ,[params.id],function(err,result){
+        if (err) {
+            console.log(err)
+        }
+        if (result) {
+            jsonWrite(res, result)
+        }})})
+
+router.post('/borBook',(req, res)=>{
+    var sql_bor = $sql.book.bor
+    var params = req.body
+    console.log(params)
+    conn.query(sql_bor ,[params.isborrow,params.id],function(err,result){
+        if (err) {
+            console.log(err)
+        }
+        if (result) {
+            jsonWrite(res, result)
+        }})})
+
+  
 router.get('/query',(req,res)=>{
+    var params = req.query || req.params;
+    console.log(params)
    conn.query('select * from book',function(err,row){
        if(err){
             console.log(err)            
        }
-       console.log(typeof row)
        let data = JSON.stringify(row)
-       console.log(typeof data)
        res.end(data)
-   })
-});
+   })})
 
 export default router;
 

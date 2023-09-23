@@ -2,58 +2,54 @@ import Books from '../pages/Books.vue'
 import mainPage from '../pages/mainPage.vue'
 import borrowedBooks from '../pages/Borrow/borrowedBooks.vue'
 import unreturnedBooks from '../pages/Borrow/unreturnedBooks.vue'
-import borrowedHistory from '../pages/Borrow/borrowHistory.vue'
-import Borrower from '../pages/Borrower.vue'
 import Account from '../pages/Account.vue'
 
-import Test from '../components/Test.vue'
 
-import { createRouter, createWebHashHistory } from 'vue-router'
-
+import { createRouter, createWebHashHistory, } from 'vue-router'
 
 
-export default new createRouter({
+
+const router = new createRouter({
     history: createWebHashHistory(),
     routes:[
         {
-            path:'/mainPage',
+            path:'/',
             name:mainPage,
-            component:mainPage
+            component:mainPage,
+            meta:{isAuth:false,title:'主页'}
         },
         {
             path:'/Books',
             name:Books,
-            component:Books
+            component:Books,
+            meta:{title:'书籍管理'}
         },
         {
             path:'/borrowedBooks',
             name:borrowedBooks,
-            component:borrowedBooks
+            component:borrowedBooks,
+            meta:{title:'书籍管理'}
         },
         {
             path:'/unreturnedBooks',
             name:unreturnedBooks,
-            component:unreturnedBooks
-        },
-        {
-            path:'/borrowedHistory',
-            name:borrowedHistory,
-            component:borrowedHistory
-        },
-        {
-            path:'/Borrower',
-            name:Borrower,
-            component:Borrower
+            component:unreturnedBooks,
+            meta:{title:'书籍管理'}
         },
         {
             path:'/Account',
             name:Account,
-            component:Account
+            component:Account,
+            meta:{title:'书籍管理'}
         },
-        {
-            path:'/Test',
-            name:Test,
-            component:Test
-        }
     ]
 })
+
+  
+  // 全局后置路由守卫，初始化时调用，在每次切换路由时调用
+  router.afterEach((to,from)=>{
+      // 设置title
+      document.title=to.meta.title
+  })
+  
+  export default router

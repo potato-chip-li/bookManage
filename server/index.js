@@ -6,6 +6,7 @@ import bodyParser  from 'body-parser'
 import express from 'express'
 import userApi from './api/userApi.js'
 import bookApi from './api/bookApi.js'
+import stuApi from './api/stuApi.js'
 
 const app = express()
 
@@ -28,6 +29,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/api/user', userApi)
 app.use('/api/book', bookApi)
+app.use('/api/stu', stuApi)
 // 监听端口
 app.listen(3002)
 console.log('success listen at port:3002......')

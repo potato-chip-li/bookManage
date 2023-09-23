@@ -1,65 +1,121 @@
 <template>
   <div class="block">
-  <el-input v-model="input" style=" width: 60%;margin-top: 20px;" placeholder="Please input" />
-  <el-button @click="search_book" 
-  style="margin-top: 20px;
-  margin-left: 10px;">搜索</el-button>
-  <el-table :data="tableData" height="500" style="width: 100%">
-  <el-table-column type="selection" width="55" />
-  <el-table-column prop="BookAuthor" label="书名" width="180" />
-  <el-table-column prop="TypeAuthor" label="类别" />
-  <el-table-column prop="Remarks" label="借阅者" />
-  <el-table-column prop="Remarks" label="借阅时间" />
-  <el-table-column prop="Remarks" label="应还时间" />
-  <el-table-column fixed="right" label="选项" width="120">
-    <template #default>
-      <el-button link type="primary" size="small" @click="dialogBorrow=true">确认归还</el-button>
+    <el-input v-model="input" style=" width: 60%;margin-top: 20px;" placeholder="Please input" />
+    <el-button @click="search_book" 
+    style="margin-top: 20px;
+    margin-left: 10px;">搜索</el-button>
+    <el-table :data="tableData" height="500" style="width: 100%"
+    @selection-change="handleSelectionChange" ref="multipleTable">
+    <el-table-column type="selection" width="55" />
+    <el-table-column prop="book_id" label="图书id" width="180" />
+    <el-table-column prop="bookname" label="书名" width="180" />
+    <el-table-column prop="stu_name" label="借阅者" />
+    <el-table-column prop="start_time" label="借阅时间" />
+    <el-table-column prop="end_time" label="应还时间" />
+    <el-table-column fixed="right" label="选项" width="120">
+      <template #default="scope">
+        <el-button link type="primary" size="small" @click="isReturn(scope.row)">确认归还</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <el-dialog v-model="dialogReturn" title="Warning" width="30%" center>
+    <span>
+      是否归还图书
+    </span>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogReturn = false">Cancel</el-button>
+        <el-button type="primary" @click="return_book">
+          Confirm
+        </el-button>
+      </span>
     </template>
-  </el-table-column>
-</el-table>
+  </el-dialog>
   <div style="margin-top: 20px">
-  <el-button @click="borSelection()">归还所选</el-button>
-  <el-button @click="delSelection()">清除选项</el-button>
+    <el-button @click="borSelection">归还所选</el-button>
+    <el-button @click="delSelection">清除选项</el-button>
   </div>
 </div>
 </template>
 
 <script setup>
-const tableData = [
-{
-  BookAuthor: '2016-05-03',
-  Author: 'Tom',
-  TypeAuthor: 'No. 189, Grove St, Los Angeles',
-},
-{
-  BookAuthor: '2016-05-02',
-  Author: 'Tom',
-  TypeAuthor: 'No. 189, Grove St, Los Angeles',
-},
-{
-  BookAuthor: '2016-05-04',
-  Author: 'Tom',
-  TypeAuthor: 'No. 189, Grove St, Los Angeles',
-},
-{
-  BookAuthor: '2016-05-01',
-  Author: 'Tom',
-  TypeAuthor: 'No. 189, Grove St, Los Angeles',
-},
-{
-  BookAuthor: '2016-05-08',
-  Author: 'Tom',
-  TypeAuthor: 'No. 189, Grove St, Los Angeles',
-},
-{
-  BookAuthor: '2016-05-06',
-  Author: 'Tom',
-  TypeAuthor: 'No. 189, Grove St, Los Angeles',
-},
-{
-  BookAuthor: '2016-05-07',
-  Author: 'Tom',
-  TypeAuthor: 'No. 189, Grove St, Los Angeles',
-},
-]
+import {ref,onMounted} from 'vue'
+import axios from 'axios'
+var tableData=ref([])
+const input=ref('')
+var myDate = new Date();
+const dialogReturn=ref(false)
+const multipleTable=ref()
+const book_id = ref(0)
+const stu_id = ref(0)
+const sel_book = ref()
+
+function search_book(){
+  console.log(tableData)
+  console.log(input.value)
+  var filtered_tableData=[]
+  tableData.value.forEach((ele)=>{
+    if (input.value!=''){
+      if(ele.bookname.indexOf(input.value)!==-1 || ele.stu_name.indexOf(input.value)!==-1){
+      filtered_tableData.push(ele)
+    }}
+  })
+  tableData.value=filtered_tableData
+}
+
+function isReturn(row){
+  dialogReturn.value=true
+  book_id.value = row.book_id
+  stu_id.value = row.stu_id
+}
+function return_book(){
+  axios.post('http://localhost:3002/api/book/borBook',{
+    isborrow:0,
+    id:book_id.value
+  })
+  axios.post('http://localhost:3002/api/stu/delStu',{
+    stu_id:stu_id.value
+  })
+  alert('归还成功')
+  dialogReturn.value=false
+}
+function handleSelectionChange(selection){
+  sel_book.value=selection
+}
+function borSelection(){
+  let returnAll = confirm('是否归还所选图书')
+  console.log(returnAll)
+  if(returnAll===false){return false}
+  sel_book.value.forEach(ele=>{
+    axios.post('http://localhost:3002/api/book/borBook',{
+    isborrow:0,
+    id:ele.book_id
+  })
+    axios.post('http://localhost:3002/api/stu/delStu',{
+    stu_id:ele.stu_id
+  })
+  })
+}
+function delSelection(){
+  multipleTable.value.clearSelection()
+}
+
+onMounted(()=>{
+  axios.get('http://localhost:3002/api/stu/query').then((response) => {
+    // console.log(myDate.getFullYear(),myDate.getMonth(),myDate.getMonth()+1)
+    response.data.forEach(ele => {
+      if(+ele.end_time.split('-')[0]<myDate.getFullYear()){
+        tableData.value.push(ele)
+      }
+      else{
+        if(+ele.end_time.split('-')[1]<myDate.getMonth()+1) tableData.value.push(ele)
+        if(+ele.end_time.split('-')[1]==myDate.getMonth()+1){
+          if(+ele.end_time.split('-')[1]<myDate.getMonth()+1) tableData.value.push(ele)
+          if(+ele.end_time.split('-')[1]==myDate.getMonth()+1){
+            if(+ele.end_time.split('-')[2]<=myDate.getDate()) tableData.value.push(ele)
+        }}
+      }
+    });
+  })
+})
 </script>
