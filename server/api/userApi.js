@@ -9,16 +9,14 @@ const  router = express.Router();
 var conn = mysql.createConnection(models.mysql);
 conn.connect();
 
-var jsonWrite = function (res, ret) {
-    if (typeof ret === 'undefined') {
+var jsonWrite = function (res, result) {
+    if (typeof result === 'undefined') {
         res.json({
             code: '1', msg: '操作失败'
         });
     }
     else {
-        res.json(
-            ret
-        );
+        res.json(result);
     }
 };
 // 增加用户接口
@@ -37,13 +35,13 @@ router.post('/addUser', (req, res) => {
 });
 
 router.get('/query',(req,res)=>{
-    conn.query('select * from user',function(err,row){
+    var sql = $sql.user.sel;
+    // var params = req.body;
+    conn.query(sql,function(err,row){
         if(err){
              console.log(err)            
         }
-        console.log(typeof row)
         let data = JSON.stringify(row)
-        console.log(typeof data)
         res.end(data)
     })
 });

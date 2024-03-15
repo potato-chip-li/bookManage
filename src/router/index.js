@@ -1,8 +1,9 @@
 import Books from '../pages/Books.vue'
 import mainPage from '../pages/mainPage.vue'
-import borrowedBooks from '../pages/Borrow/borrowedBooks.vue'
-import unreturnedBooks from '../pages/Borrow/unreturnedBooks.vue'
+import borrowedBooks from '../pages/borrowedBooks.vue'
+import unreturnedBooks from '../pages/unreturnedBooks.vue'
 import Account from '../pages/Account.vue'
+import bookTrack from '../pages/bookTrack.vue'
 
 
 import { createRouter, createWebHashHistory, } from 'vue-router'
@@ -16,7 +17,7 @@ const router = new createRouter({
             path:'/',
             name:mainPage,
             component:mainPage,
-            meta:{isAuth:false,title:'主页'}
+            meta:{title:'主页'}
         },
         {
             path:'/Books',
@@ -28,19 +29,25 @@ const router = new createRouter({
             path:'/borrowedBooks',
             name:borrowedBooks,
             component:borrowedBooks,
-            meta:{title:'书籍管理'}
+            meta:{title:'未还书籍'}
         },
         {
             path:'/unreturnedBooks',
             name:unreturnedBooks,
             component:unreturnedBooks,
-            meta:{title:'书籍管理'}
+            meta:{title:'逾期书籍'}
         },
         {
             path:'/Account',
             name:Account,
             component:Account,
-            meta:{title:'书籍管理'}
+            meta:{title:'账户管理'}
+        },
+        {
+            path:'/bookTrack',
+            name:bookTrack,
+            component:bookTrack,
+            meta:{title:'借阅记录'}
         },
     ]
 })

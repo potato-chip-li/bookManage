@@ -16,6 +16,7 @@ const booksort=reactive({
     sort4:0,
     sort5:0,
 })
+let booknum_time=[0,0,0,0,0,0,0,0,0,0,0,0]
 let echart = echarts;
 
 onMounted(() => {
@@ -28,27 +29,22 @@ onMounted(() => {
             if(ele.typename=='历史地理') {booksort.sort4++}
             if(ele.typename=='自然科学') {booksort.sort5++}
         })
-    })
+    }).then(initChart_1)
     axios.get('http://localhost:3002/api/stu/query').then((response)=>{
-        booknum.num_isbor=response.data.length
-        response.data.forEach(ele => {
-        if(+ele.end_time.split('-')[0]<myDate.getFullYear()){
-            booknum.num_unreturn++
-      }
-      else{
-        if(+ele.end_time.split('-')[1]<myDate.getMonth()+1) booknum.num_unreturn++
-        if(+ele.end_time.split('-')[1]==myDate.getMonth()+1){
-          if(+ele.end_time.split('-')[1]<myDate.getMonth()+1) booknum.num_unreturn++
-          if(+ele.end_time.split('-')[1]==myDate.getMonth()+1){
-            if(+ele.end_time.split('-')[2]<=myDate.getDate()) booknum.num_unreturn++
-        }}
-      }
-    })
-    })
-    // 设置延时，要比axios.get慢
-    setTimeout(initChart_1,1000)
-    setTimeout(initChart_2,1000)
-    setTimeout(initChart_3,1000)
+        response.data.forEach(ele=>{
+            // 先转化为时间戳，再与当前时间戳对比，小于就视为逾期未还的图书
+            if(ele.isborrow===1){
+                booknum.num_isbor += 1;
+                if(Date.parse(ele.pre_end_time)<Date.now()){
+                booknum.num_unreturn += 1
+            }
+            }
+            // 正则匹配月份
+            let mon = ele.start_time.match(/\d+/g)[1]
+            booknum_time[mon-1]+=1
+        })
+        console.log(booknum_time)
+    }).then(()=>{initChart_2(),initChart_3()})
 });
 
 onUnmounted(() => {
@@ -56,13 +52,12 @@ onUnmounted(() => {
 });
 
 // 基础配置一下Echarts
-function initChart_1() {
+function initChart_3() {
     let chart_1 = echart.init(document.getElementById("myEcharts_1"),);
     // 把配置和数据放这里
     chart_1.setOption({
     title: {
     text: '图书借阅时间',
-    subtext: 'Fake Data',
     left: 'center'
     },
     xAxis: {
@@ -91,18 +86,7 @@ function initChart_1() {
     series: [
         {
         data: [
-            820,
-            932,
-            901,
-            934,
-            1290,
-            1330,
-            1320,
-            801,
-            102,
-            230,
-            4321,
-            4129
+            ...booknum_time
         ],
         type: "line",
         smooth: true
@@ -115,7 +99,7 @@ function initChart_1() {
     };
 }
 
-function initChart_2(){
+function initChart_1(){
     let chart_2 = echart.init(document.getElementById("myEcharts_2"),);
     var option;
     option = {
@@ -155,7 +139,7 @@ function initChart_2(){
     chart_2.setOption(option)
     }
 
-function initChart_3(){
+function initChart_2(){
     let chart_3 = echart.init(document.getElementById("myEcharts_3"));
     var option = {
         title: {
@@ -166,12 +150,12 @@ function initChart_3(){
         },
         yAxis: {
             type: 'category',
-            data: ['未借图书', '已借图书', '逾期图书',],
+            data: ['在管图书', '已借图书', '逾期图书',],
             inverse: true
         },
         series: [
             {
-            data: [booknum.num_all, booknum.num_isbor, booknum.num_unreturn],
+            data: [booknum.num_all - booknum.num_isbor, booknum.num_isbor, booknum.num_unreturn],
             type: 'bar'
             }
         ]
@@ -184,7 +168,7 @@ chart_3.setOption(option)
 
 
 <template>
-<div class="block">
+<div>
     <div class="echarts-box">
       <div id="myEcharts_2" :style="{ width: '900px', height: '300px', float:'left'}"></div>
       <div id="myEcharts_3" :style="{ width: '600px', height: '300px', float:'left' }"></div>

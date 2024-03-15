@@ -1,8 +1,8 @@
 export default {
     mysql: {
-    host: 'localhost',
+    host: '192.168.32.135',
     user: 'root',
-    password: '密码',
+    password: '950324',
     database: 'book_manage',
     port: '3306'
     }

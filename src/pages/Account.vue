@@ -25,15 +25,6 @@
 <el-table :data="tableData" max-height="400px" size="small" height=320>
     <el-table-column label="名字" prop="username" />
     <el-table-column label="密码" prop="password" />
-    <!-- <el-table-column>
-      <template #default="scope">
-        <el-button
-          size="small"
-          type="danger"
-          @click="handleDelete(scope.$index, scope.row)"
-          >Delete</el-button>
-      </template>
-    </el-table-column> -->
   </el-table>
   <div style="margin-top: 20px">
     
@@ -78,17 +69,12 @@ function resetForm(){
 }
 
 
-
-
-
-const handleEdit = (index, row) => {
-  console.log(index, row)
+const exitAccount = ()=>{
+  window.location.reload()
 }
-const handleDelete = (index, row) => {
-  console.log(index, row)
+const changePassword = ()=>{
+  alert('功能未实现')
 }
-const exitAccount = ()=>{}
-const changePassword = ()=>{}
 
 
 

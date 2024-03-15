@@ -1,5 +1,4 @@
 <template>  
-    <!-- Form -->
     <el-dialog title="添加书籍">
       <el-form :model="form">
         <el-form-item label="书名" :label-width="formLabelWidth">
@@ -33,33 +32,26 @@
   
   <script setup>
   import axios from 'axios'
-  import { reactive, ref } from 'vue'
+  import { reactive } from 'vue'
   const formLabelWidth = '140px'
   let form = reactive({
     bookname: '',
     author: '',
     typename: '',
     remarks: '',
-    isborrow:0
-    // delivery: false,
-    // type: [],
-    // resource: '',
-    // desc: '',
   })
   function submitBook(){
-    console.log(form)
-        axios.post('http://localhost:3002/api/book/addBook', {
-          bookname: form.bookname,
-          author: form.author,
-          typename: form.typename,
-          remarks: form.remarks,
-          isborrow: form.isborrow
-        }, {}).then((response) => { console.log(response); })
-        alert('添加成功')
-        form.bookname=''
-        form.author=''
-        form.typename=''
-        form.remarks=''
+    axios.post('http://localhost:3002/api/book/addBook', {
+      bookname: form.bookname,
+      author: form.author,
+      typename: form.typename,
+      remarks: form.remarks,
+    }).then((response) => { 
+      console.log('图书添加成功')
+      form.bookname=''
+      form.author=''
+      form.typename=''
+      form.remarks=''})
   }
   </script>
   <style scoped>
